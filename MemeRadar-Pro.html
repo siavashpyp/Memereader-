@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MemeRadar — Professional Meme Coin Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --bg-elevated: #0f0f12;
+      --bg-card: #141418;
+      --bg-hover: #1c1c22;
+      --border: rgba(255,255,255,0.07);
+      --border-strong: rgba(255,255,255,0.12);
+      --text: #fafafa;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      --green: #22c55e;
+      --green-dim: rgba(34,197,94,0.12);
+      --red: #ef4444;
+      --red-dim: rgba(239,68,68,0.12);
+      --yellow: #eab308;
+      --yellow-dim: rgba(234,179,8,0.12);
+      --purple: #8b5cf6;
+      --purple-dim: rgba(139,92,246,0.12);
+      --blue: #3b82f6;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* RTL support */
+    html[dir="rtl"] body { font-family: var(--font); }
+    html[dir="rtl"] .mono { direction: ltr; text-align: left; }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    input, select { font-family: inherit; }
+
+    /* Layout */
+    .app { display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* Top bar */
+    .topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9,9,11,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.25rem;
+      height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex; align-items: center; gap: 0.6rem;
+      font-weight: 700; font-size: 1.1rem; letter-spacing: -0.02em;
+    }
+    .brand-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(135deg, #22c55e, #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem;
+    }
+    .brand span { color: var(--green); }
+
+    .topbar-nav { display: flex; gap: 0.25rem; }
+    .topbar-nav a {
+      padding: 0.4rem 0.85rem; border-radius: 8px;
+      font-size: 0.875rem; font-weight: 500; color: var(--text-secondary);
+      transition: all 0.15s;
+    }
+    .topbar-nav a:hover, .topbar-nav a.active {
+      color: var(--text); background: var(--bg-hover);
+    }
+
+    .topbar-actions { display: flex; align-items: center; gap: 0.6rem; }
+
+    .lang-toggle {
+      display: flex; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 8px; overflow: hidden;
+    }
+    .lang-toggle button {
+      padding: 0.35rem 0.7rem; font-size: 0.8rem; font-weight: 600;
+      color: var(--text-muted); transition: all 0.15s;
+    }
+    .lang-toggle button.active {
+      background: var(--purple-dim); color: var(--purple);
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.45rem 0.9rem; border-radius: 8px;
+      font-size: 0.85rem; font-weight: 600; transition: all 0.15s;
+    }
+    .btn-primary {
+      background: var(--green); color: #000;
+    }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-secondary {
+      background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: var(--bg-hover); border-color: var(--border-strong); }
+    .btn-ghost {
+      color: var(--text-secondary);
+    }
+    .btn-ghost:hover { color: var(--text); background: var(--bg-hover); }
+
+    /* Main */
+    .main { flex: 1; max-width: 1280px; width: 100%; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+
+    /* Hero stats */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem 1.15rem;
+    }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    .stat-value { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; font-family: var(--mono); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.purple { color: var(--purple); }
+
+    /* Section */
+    .section { margin-bottom: 2rem; }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;
+    }
+    .section-title { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.01em; }
+    .section-title span { color: var(--text-muted); font-weight: 500; font-size: 0.85rem; margin-left: 0.5rem; }
+
+    /* Filters */
+    .filters { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .filter-chip {
+      padding: 0.35rem 0.75rem; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);
+      background: var(--bg-card); border: 1px solid var(--border);
+      transition: all 0.15s;
+    }
+    .filter-chip:hover { border-color: var(--border-strong); color: var(--text); }
+    .filter-chip.active {
+      background: var(--purple-dim); border-color: rgba(139,92,246,0.35);
+      color: var(--purple);
+    }
+
+    /* Search */
+    .search-box {
+      display: flex; align-items: center; gap: 0.5rem;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.45rem 0.85rem;
+      min-width: 220px;
+    }
+    .search-box input {
+      background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 0.85rem; width: 100%;
+    }
+    .search-box input::placeholder { color: var(--text-muted); }
+
+    /* Table */
+    .table-wrap {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th {
+      text-align: left; padding: 0.75rem 1rem;
+      font-size: 0.7rem; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--border); background: var(--bg-elevated);
+    }
+    html[dir="rtl"] th { text-align: right; }
+    td {
+      padding: 0.85rem 1rem; border-bottom: 1px solid var(--border);
+      font-size: 0.875rem; vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg-hover); }
+
+    .coin-cell { display: flex; align-items: center; gap: 0.7rem; }
+    .coin-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg-hover); display: flex; align-items: center; justify-content: center;
+      font-size: 1.15rem; flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+    .coin-name { font-weight: 600; font-size: 0.9rem; }
+    .coin-meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
+
+    .mono { font-family: var(--mono); font-size: 0.85rem; }
+    .change {
+      font-weight: 600; font-size: 0.85rem; font-family: var(--mono);
+      padding: 0.2rem 0.45rem; border-radius: 6px;
+    }
+    .change.up { color: var(--green); background: var(--green-dim); }
+    .change.down { color: var(--red); background: var(--red-dim); }
+
+    .score-wrap { display: flex; align-items: center; gap: 0.45rem; }
+    .score-bar {
+      width: 48px; height: 5px; background: rgba(255,255,255,0.08);
+      border-radius: 3px; overflow: hidden;
+    }
+    .score-fill { height: 100%; border-radius: 3px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.25rem;
+      padding: 0.2rem 0.55rem; border-radius: 20px;
+      font-size: 0.72rem; font-weight: 600;
+    }
+    .badge-safe { background: var(--green-dim); color: var(--green); }
+    .badge-warn { background: var(--yellow-dim); color: var(--yellow); }
+    .badge-danger { background: var(--red-dim); color: var(--red); }
+    .badge-chain {
+      background: var(--purple-dim); color: var(--purple);
+      font-size: 0.7rem; padding: 0.15rem 0.45rem;
+    }
+
+    .btn-sm {
+      padding: 0.3rem 0.7rem; border-radius: 6px;
+      font-size: 0.78rem; font-weight: 600;
+      background: var(--green); color: #000;
+    }
+    .btn-sm:hover { filter: brightness(1.1); }
+
+    /* Grid layouts */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .card-title {
+      font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+
+    /* Rug Checker */
+    .rug-input-row { display: flex; gap: 0.6rem; margin-bottom: 1.25rem; }
+    .rug-input {
+      flex: 1; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.7rem 1rem; color: var(--text);
+      font-size: 0.9rem; font-family: var(--mono); outline: none;
+      transition: border-color 0.15s;
+    }
+    .rug-input:focus { border-color: var(--purple); }
+    .rug-input::placeholder { color: var(--text-muted); font-family: var(--font); }
+
+    .rug-result { display: none; }
+    .rug-result.show { display: block; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .rug-score-row {
+      display: flex; align-items: center; gap: 1.5rem;
+      margin-bottom: 1.25rem; padding-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .score-circle {
+      width: 88px; height: 88px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 1.6rem; font-weight: 700;
+      border: 3px solid; flex-shrink: 0;
+    }
+    .rug-verdict h3 { font-size: 1.1rem; margin-bottom: 0.3rem; }
+    .rug-verdict p { font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6; }
+
+    .risk-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
+    }
+    .risk-item {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 0.75rem; border-radius: 8px;
+      background: var(--bg); font-size: 0.82rem;
+      border: 1px solid var(--border);
+    }
+
+    /* Meme Generator */
+    .meme-form { display: flex; flex-direction: column; gap: 0.7rem; }
+    .form-input, .form-select {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.65rem 0.9rem; color: var(--text);
+      font-size: 0.875rem; outline: none; width: 100%;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--purple); }
+    .form-select { cursor: pointer; }
+    .meme-preview-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); min-height: 220px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 1.5rem;
+    }
+    .meme-preview-box .placeholder { color: var(--text-muted); font-size: 0.9rem; }
+    .meme-output .emoji { font-size: 2.8rem; margin-bottom: 0.6rem; }
+    .meme-output .title {
+      font-size: 1.2rem; font-weight: 800; margin-bottom: 0.4rem;
+      color: var(--green);
+    }
+    .meme-output .caption { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.55; }
+
+    /* Leaderboard */
+    .lb-item {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.65rem 0; border-bottom: 1px solid var(--border);
+    }
+    .lb-item:last-child { border-bottom: none; }
+    .lb-rank {
+      width: 26px; height: 26px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; background: var(--bg-hover);
+      flex-shrink: 0;
+    }
+    .lb-item:nth-child(1) .lb-rank { background: #eab308; color: #000; }
+    .lb-item:nth-child(2) .lb-rank { background: #94a3b8; color: #000; }
+    .lb-item:nth-child(3) .lb-rank { background: #b45309; color: #fff; }
+    .lb-name { flex: 1; font-weight: 500; font-size: 0.875rem; }
+    .lb-pnl { font-family: var(--mono); font-weight: 700; font-size: 0.85rem; color: var(--green); }
+
+    /* Vote */
+    .vote-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.7rem 0; border-bottom: 1px solid var(--border);
+    }
+    .vote-item:last-child { border-bottom: none; }
+    .vote-left { display: flex; align-items: center; gap: 0.6rem; }
+    .vote-left .icon { font-size: 1.2rem; }
+    .vote-name { font-weight: 600; font-size: 0.875rem; }
+    .vote-count { font-size: 0.75rem; color: var(--text-muted); }
+    .vote-btn {
+      padding: 0.3rem 0.75rem; border-radius: 6px;
+      font-size: 0.78rem; font-weight: 600;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text-secondary); transition: all 0.15s;
+    }
+    .vote-btn:hover { border-color: var(--purple); color: var(--purple); }
+    .vote-btn.voted { background: var(--purple-dim); border-color: rgba(139,92,246,0.4); color: var(--purple); }
+
+    /* Watchlist / Alpha feed */
+    .feed-item {
+      display: flex; gap: 0.75rem; padding: 0.85rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-dot {
+      width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0;
+    }
+    .feed-dot.green { background: var(--green); }
+    .feed-dot.red { background: var(--red); }
+    .feed-dot.yellow { background: var(--yellow); }
+    .feed-dot.purple { background: var(--purple); }
+    .feed-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; }
+    .feed-text strong { color: var(--text); font-weight: 600; }
+    .feed-time { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+    /* Premium card */
+    .premium-card {
+      background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(34,197,94,0.08));
+      border: 1px solid rgba(139,92,246,0.3);
+    }
+    .premium-list { list-style: none; margin-bottom: 1.25rem; }
+    .premium-list li {
+      padding: 0.4rem 0; font-size: 0.875rem; color: var(--text-secondary);
+      padding-left: 1.4rem; position: relative;
+    }
+    html[dir="rtl"] .premium-list li { padding-left: 0; padding-right: 1.4rem; }
+    .premium-list li::before {
+      content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700;
+    }
+    html[dir="rtl"] .premium-list li::before { left: auto; right: 0; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--bg-card); border: 1px solid var(--border-strong);
+      color: var(--text); padding: 0.75rem 1.4rem; border-radius: 10px;
+      font-size: 0.875rem; font-weight: 500; z-index: 999;
+      opacity: 0; transition: all 0.3s ease;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* Footer */
+    .footer {
+      border-top: 1px solid var(--border); padding: 1.5rem;
+      text-align: center; color: var(--text-muted); font-size: 0.8rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .topbar-nav { display: none; }
+      .risk-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .main { padding: 1rem; }
+      .rug-input-row { flex-direction: column; }
+      .rug-score-row { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">🐸</div>
+        Meme<span>Radar</span>
+      </div>
+      <nav class="topbar-nav">
+        <a href="#radar" class="active" data-i18n="nav_radar">Radar</a>
+        <a href="#rug" data-i18n="nav_rug">Rug Check</a>
+        <a href="#tools" data-i18n="nav_tools">Tools</a>
+        <a href="#community" data-i18n="nav_community">Community</a>
+      </nav>
+      <div class="topbar-actions">
+        <div class="lang-toggle">
+          <button class="active" data-lang="en">EN</button>
+          <button data-lang="fa">FA</button>
+        </div>
+        <button class="btn btn-secondary" id="btnWatchlist" data-i18n="btn_watchlist">Watchlist</button>
+        <button class="btn btn-primary" id="btnConnect" data-i18n="btn_connect">Connect Wallet</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label" data-i18n="stat_tracked">Tracked Coins</div>
+          <div class="stat-value purple" id="statCoins">1,284</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label" data-i18n="stat_volume">24h Volume</div>
+          <div class="stat-value" id="statVolume">$52.4M</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label" data-i18n="stat_new">New (1h)</div>
+          <div class="stat-value green" id="statNew">47</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label" data-i18n="stat_accuracy">Signal Accuracy</div>
+          <div class="stat-value green">87%</div>
+        </div>
+      </div>
+
+      <!-- Radar / Trending -->
+      <section class="section" id="radar">
+        <div class="section-header">
+          <h2 class="section-title" data-i18n="radar_title">Live Radar <span data-i18n="radar_sub">Real-time meme coin tracker</span></h2>
+          <div style="display:flex;gap:0.6rem;align-items:center;flex-wrap:wrap;">
+            <div class="search-box">
+              <span style="color:var(--text-muted);font-size:0.9rem;">⌕</span>
+              <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="Search name or CA...">
+            </div>
+            <div class="filters" id="filters">
+              <button class="filter-chip active" data-filter="all" data-i18n="filter_all">All</button>
+              <button class="filter-chip" data-filter="solana">Solana</button>
+              <button class="filter-chip" data-filter="base">Base</button>
+              <button class="filter-chip" data-filter="new" data-i18n="filter_new">New</button>
+              <button class="filter-chip" data-filter="hot" data-i18n="filter_hot">Hot</button>
+            </div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th data-i18n="th_coin">Coin</th>
+                  <th data-i18n="th_price">Price</th>
+                  <th data-i18n="th_change">24h</th>
+                  <th data-i18n="th_volume">Volume</th>
+                  <th data-i18n="th_liq">Liquidity</th>
+                  <th data-i18n="th_degen">Degen Score</th>
+                  <th data-i18n="th_risk">Risk</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rug Check + Meme Generator -->
+      <section class="section" id="rug">
+        <div class="grid-2">
+          <div class="card">
+            <h3 class="card-title">🛡 <span data-i18n="rug_title">Rug Checker</span></h3>
+            <div class="rug-input-row">
+              <input class="rug-input" id="caInput" data-i18n-placeholder="rug_placeholder" placeholder="Paste contract address...">
+              <button class="btn btn-primary" id="btnCheck" data-i18n="rug_btn">Analyze</button>
+            </div>
+            <div class="rug-result" id="rugResult">
+              <div class="rug-score-row">
+                <div class="score-circle" id="scoreCircle">--</div>
+                <div class="rug-verdict">
+                  <h3 id="rugTitle">—</h3>
+                  <p id="rugMsg">—</p>
+                </div>
+              </div>
+              <div class="risk-grid" id="riskGrid"></div>
+            </div>
+          </div>
+
+          <div class="card" id="tools">
+            <h3 class="card-title">🎨 <span data-i18n="meme_title">Meme Generator</span></h3>
+            <div class="meme-form">
+              <input class="form-input" id="memeCoin" data-i18n-placeholder="meme_coin_ph" placeholder="Coin name (e.g. PEPE)">
+              <input class="form-input" id="memeText" data-i18n-placeholder="meme_text_ph" placeholder="Custom text (optional)">
+              <select class="form-select" id="memeStyle">
+                <option value="classic" data-i18n="style_classic">Classic</option>
+                <option value="drake" data-i18n="style_drake">Drake</option>
+                <option value="brain" data-i18n="style_brain">Expanding Brain</option>
+                <option value="stonks" data-i18n="style_stonks">Stonks</option>
+              </select>
+              <button class="btn btn-primary" id="btnMeme" data-i18n="meme_btn">Generate Meme</button>
+            </div>
+            <div class="meme-preview-box" id="memePreview" style="margin-top:1rem;">
+              <div class="placeholder" data-i18n="meme_placeholder">Your meme will appear here</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Community + Feed + Premium -->
+      <section class="section" id="community">
+        <div class="grid-3">
+          <div class="card">
+            <h3 class="card-title">🏆 <span data-i18n="lb_title">Weekly Leaderboard</span></h3>
+            <div id="leaderboard"></div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title">🗳 <span data-i18n="vote_title">Next 100x Vote</span></h3>
+            <div id="voteList"></div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title">📡 <span data-i18n="feed_title">Alpha Feed</span></h3>
+            <div id="alphaFeed"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Premium -->
+      <section class="section">
+        <div class="card premium-card" style="max-width:480px;margin:0 auto;text-align:center;">
+          <h3 class="card-title" style="justify-content:center;">⭐ <span data-i18n="premium_title">MemeRadar Pro</span></h3>
+          <ul class="premium-list" style="text-align:left;display:inline-block;">
+            <li data-i18n="prem_1">Real-time Telegram & push alerts</li>
+            <li data-i18n="prem_2">Deep AI rug analysis + history</li>
+            <li data-i18n="prem_3">Unlimited smart money tracking</li>
+            <li data-i18n="prem_4">Ad-free + priority support</li>
+            <li data-i18n="prem_5">Exclusive alpha signals</li>
+          </ul>
+          <br>
+          <button class="btn btn-primary" id="btnPremium" style="margin-top:0.5rem;" data-i18n="prem_btn">Start 14-day free trial</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      MemeRadar · Built for degens · v0.3 Pro · <span data-i18n="footer_demo">Demo data</span>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ===================== i18n =====================
+    const i18n = {
+      en: {
+        nav_radar: "Radar", nav_rug: "Rug Check", nav_tools: "Tools", nav_community: "Community",
+        btn_watchlist: "Watchlist", btn_connect: "Connect Wallet",
+        stat_tracked: "Tracked Coins", stat_volume: "24h Volume", stat_new: "New (1h)", stat_accuracy: "Signal Accuracy",
+        radar_title: "Live Radar", radar_sub: "Real-time meme coin tracker",
+        search_placeholder: "Search name or CA...",
+        filter_all: "All", filter_new: "New", filter_hot: "Hot",
+        th_coin: "Coin", th_price: "Price", th_change: "24h", th_volume: "Volume", th_liq: "Liquidity", th_degen: "Degen Score", th_risk: "Risk",
+        rug_title: "Rug Checker", rug_placeholder: "Paste contract address...", rug_btn: "Analyze",
+        meme_title: "Meme Generator", meme_coin_ph: "Coin name (e.g. PEPE)", meme_text_ph: "Custom text (optional)",
+        style_classic: "Classic", style_drake: "Drake", style_brain: "Expanding Brain", style_stonks: "Stonks",
+        meme_btn: "Generate Meme", meme_placeholder: "Your meme will appear here",
+        lb_title: "Weekly Leaderboard", vote_title: "Next 100x Vote", feed_title: "Alpha Feed",
+        premium_title: "MemeRadar Pro",
+        prem_1: "Real-time Telegram & push alerts", prem_2: "Deep AI rug analysis + history",
+        prem_3: "Unlimited smart money tracking", prem_4: "Ad-free + priority support", prem_5: "Exclusive alpha signals",
+        prem_btn: "Start 14-day free trial", footer_demo: "Demo data",
+        toast_wallet: "Wallet connection coming soon", toast_watch: "Watchlist coming soon",
+        toast_premium: "You're on the waitlist!", toast_vote: "Vote registered!",
+        toast_meme: "Meme generated!", toast_rug: "Analysis complete",
+        toast_search: "Search applied", toast_trade: "Trade link coming soon",
+        rug_safe: "Looks relatively safe", rug_medium: "Proceed with caution", rug_danger: "High rug risk",
+        rug_safe_msg: "No major red flags detected. Liquidity looks decent and holder distribution is reasonable. Still — never invest more than you can afford to lose.",
+        rug_med_msg: "Some warning signs present. Keep position size small and set a stop. DYOR thoroughly.",
+        rug_dang_msg: "Multiple red flags. Possible honeypot or high dump risk. Better skip unless you enjoy gambling.",
+      },
+      fa: {
+        nav_radar: "رادار", nav_rug: "راگ‌چک", nav_tools: "ابزارها", nav_community: "جامعه",
+        btn_watchlist: "واچ‌لیست", btn_connect: "اتصال والت",
+        stat_tracked: "کوین‌های رصد شده", stat_volume: "حجم ۲۴ساعته", stat_new: "جدید (۱ساعت)", stat_accuracy: "دقت سیگنال",
+        radar_title: "رادار زنده", radar_sub: "ردیاب لحظه‌ای میم‌کوین",
+        search_placeholder: "جستجوی نام یا کانترکت...",
+        filter_all: "همه", filter_new: "جدید", filter_hot: "داغ",
+        th_coin: "کوین", th_price: "قیمت", th_change: "۲۴س", th_volume: "حجم", th_liq: "لیکوئیدیتی", th_degen: "امتیاز دجن", th_risk: "ریسک",
+        rug_title: "چک‌کننده راگ", rug_placeholder: "آدرس کانترکت را وارد کنید...", rug_btn: "تحلیل",
+        meme_title: "میم‌ساز", meme_coin_ph: "نام کوین (مثلاً PEPE)", meme_text_ph: "متن دلخواه (اختیاری)",
+        style_classic: "کلاسیک", style_drake: "دریک", style_brain: "مغز در حال رشد", style_stonks: "استانکس",
+        meme_btn: "ساخت میم", meme_placeholder: "میم شما اینجا ظاهر می‌شود",
+        lb_title: "لیدربورد هفتگی", vote_title: "رأی‌گیری ۱۰۰x بعدی", feed_title: "فید آلفا",
+        premium_title: "MemeRadar Pro",
+        prem_1: "آلرت لحظه‌ای تلگرام و پوش", prem_2: "تحلیل عمیق AI + تاریخچه",
+        prem_3: "ردیابی نامحدود پول هوشمند", prem_4: "بدون تبلیغات + پشتیبانی اولویت‌دار", prem_5: "سیگنال‌های اختصاصی",
+        prem_btn: "شروع ۱۴ روز رایگان", footer_demo: "داده آزمایشی",
+        toast_wallet: "اتصال والت به زودی", toast_watch: "واچ‌لیست به زودی",
+        toast_premium: "در لیست انتظار ثبت شدی!", toast_vote: "رأی ثبت شد!",
+        toast_meme: "میم ساخته شد!", toast_rug: "تحلیل کامل شد",
+        toast_search: "جستجو اعمال شد", toast_trade: "لینک ترید به زودی",
+        rug_safe: "به نسبت امن به نظر می‌رسد", rug_medium: "با احتیاط ادامه بده", rug_danger: "ریسک راگ بالا",
+        rug_safe_msg: "پرچم قرمز جدی دیده نشد. لیکوئیدیتی قابل قبول و توزیع هولدر منطقی است. با این حال بیشتر از توان ضرر سرمایه‌گذاری نکن.",
+        rug_med_msg: "چند هشدار وجود دارد. حجم پوزیشن را کوچک نگه دار و استاپ بگذار. تحقیق کامل انجام بده.",
+        rug_dang_msg: "چندین پرچم قرمز. احتمال هانی‌پات یا دامپ بالا. بهتر است رد شوی مگر اهل قمار باشی.",
+      }
+    };
+
+    let lang = "en";
+
+    function t(key) { return i18n[lang][key] || key; }
+
+    function applyLang() {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === "fa" ? "rtl" : "ltr";
+
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const key = el.getAttribute("data-i18n");
+        if (i18n[lang][key]) el.textContent = i18n[lang][key];
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(el => {
+        const key = el.getAttribute("data-i18n-placeholder");
+        if (i18n[lang][key]) el.placeholder = i18n[lang][key];
+      });
+
+      // Update select options
+      document.querySelectorAll("#memeStyle option").forEach(opt => {
+        const key = opt.getAttribute("data-i18n");
+        if (key && i18n[lang][key]) opt.textContent = i18n[lang][key];
+      });
+
+      renderTable(currentFilter, searchQuery);
+      renderLeaderboard();
+      renderVotes();
+      renderFeed();
+    }
+
+    // ===================== Data =====================
+    const coins = [
+      { id:1, name:"Pepe 2.0", symbol:"PEPE2", icon:"🐸", price:0.00003421, change:127.4, vol:"2.8M", liq:"412K", score:92, risk:"safe", chain:"solana", isNew:true, isHot:true },
+      { id:2, name:"CatWifHat", symbol:"CWIF", icon:"🐱", price:0.00451, change:89.1, vol:"3.1M", liq:"1.2M", score:85, risk:"safe", chain:"solana", isNew:false, isHot:true },
+      { id:3, name:"Based Frog", symbol:"BFROG", icon:"🟢", price:0.000156, change:56.7, vol:"1.1M", liq:"670K", score:88, risk:"safe", chain:"base", isNew:true, isHot:true },
+      { id:4, name:"DogeArmy", symbol:"DARM", icon:"🐕", price:0.00182, change:45.2, vol:"1.4M", liq:"890K", score:78, risk:"safe", chain:"solana", isNew:false, isHot:true },
+      { id:5, name:"ChadCoin", symbol:"CHAD", icon:"💪", price:0.0234, change:-5.4, vol:"2.2M", liq:"1.8M", score:79, risk:"safe", chain:"solana", isNew:false, isHot:false },
+      { id:6, name:"MoonBird", symbol:"MBIRD", icon:"🐦", price:0.00089, change:12.3, vol:"540K", liq:"320K", score:71, risk:"safe", chain:"base", isNew:false, isHot:false },
+      { id:7, name:"Wojak Tears", symbol:"TEARS", icon:"😭", price:0.0000077, change:-18.6, vol:"680K", liq:"145K", score:61, risk:"medium", chain:"base", isNew:true, isHot:false },
+      { id:8, name:"RugMaster", symbol:"RUG", icon:"🚨", price:0.0000012, change:312.0, vol:"920K", liq:"48K", score:34, risk:"danger", chain:"solana", isNew:true, isHot:true },
+    ];
+
+    const leaders = [
+      { name:"DegenKing", pnl:"+842%" },
+      { name:"PepeLover", pnl:"+621%" },
+      { name:"RugSurvivor", pnl:"+415%" },
+      { name:"MoonBoy99", pnl:"+298%" },
+      { name:"AlphaSeeker", pnl:"+187%" },
+    ];
+
+    let votes = [
+      { name:"Pepe 2.0", icon:"🐸", count:342 },
+      { name:"CatWifHat", icon:"🐱", count:287 },
+      { name:"Based Frog", icon:"🟢", count:198 },
+      { name:"DogeArmy", icon:"🐕", count:156 },
+    ];
+
+    const feed = [
+      { type:"green", text_en:"Smart money wallet bought <strong>PEPE2</strong> — $48K", text_fa:"ولت هوشمند <strong>PEPE2</strong> خرید — ۴۸ هزار دلار", time_en:"2m ago", time_fa:"۲ دقیقه پیش" },
+      { type:"purple", text_en:"New launch detected on Solana: <strong>BONKER</strong>", text_fa:"لانچ جدید در سولانا: <strong>BONKER</strong>", time_en:"5m ago", time_fa:"۵ دقیقه پیش" },
+      { type:"yellow", text_en:"Liquidity unlock warning on <strong>TEARS</strong>", text_fa:"هشدار آزادسازی لیکوئیدیتی روی <strong>TEARS</strong>", time_en:"12m ago", time_fa:"۱۲ دقیقه پیش" },
+      { type:"red", text_en:"Possible rug pattern on <strong>RUG</strong> token", text_fa:"الگوی مشکوک راگ روی توکن <strong>RUG</strong>", time_en:"18m ago", time_fa:"۱۸ دقیقه پیش" },
+      { type:"green", text_en:"Volume spike +340% on <strong>CWIF</strong>", text_fa:"افزایش حجم ۳۴۰٪+ روی <strong>CWIF</strong>", time_en:"25m ago", time_fa:"۲۵ دقیقه پیش" },
+    ];
+
+    // ===================== Helpers =====================
+    function fmtPrice(p) {
+      if (p < 0.00001) return p.toFixed(8);
+      if (p < 0.001) return p.toFixed(6);
+      if (p < 1) return p.toFixed(5);
+      return p.toFixed(2);
+    }
+    function scoreColor(s) {
+      if (s >= 75) return "var(--green)";
+      if (s >= 50) return "var(--yellow)";
+      return "var(--red)";
+    }
+    function riskBadge(r) {
+      const map = { safe: ["badge-safe", "Safe"], medium: ["badge-warn", "Medium"], danger: ["badge-danger", "High Risk"] };
+      const fa = { safe: "ایمن", medium: "متوسط", danger: "پرریسک" };
+      const [cls, en] = map[r];
+      return `<span class="badge ${cls}">${lang==="fa" ? fa[r] : en}</span>`;
+    }
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      setTimeout(() => el.classList.remove("show"), 2800);
+    }
+
+    // ===================== Render =====================
+    let currentFilter = "all";
+    let searchQuery = "";
+
+    function renderTable(filter = "all", q = "") {
+      let list = [...coins];
+      if (filter === "solana") list = list.filter(c => c.chain === "solana");
+      if (filter === "base") list = list.filter(c => c.chain === "base");
+      if (filter === "new") list = list.filter(c => c.isNew);
+      if (filter === "hot") list = list.filter(c => c.isHot);
+      if (q) {
+        const qq = q.toLowerCase();
+        list = list.filter(c => c.name.toLowerCase().includes(qq) || c.symbol.toLowerCase().includes(qq));
+      }
+      list.sort((a,b) => b.score - a.score);
+
+      document.getElementById("tableBody").innerHTML = list.map((c, i) => `
+        <tr>
+          <td style="color:var(--text-muted);font-size:0.8rem;">${i+1}</td>
+          <td>
+            <div class="coin-cell">
+              <div class="coin-avatar">${c.icon}</div>
+              <div>
+                <div class="coin-name">${c.name}</div>
+                <div class="coin-meta">${c.symbol} · <span class="badge badge-chain">${c.chain}</span></div>
+              </div>
+            </div>
+          </td>
+          <td class="mono">$${fmtPrice(c.price)}</td>
+          <td><span class="change ${c.change>=0?"up":"down"}">${c.change>=0?"+":""}${c.change.toFixed(1)}%</span></td>
+          <td class="mono">$${c.vol}</td>
+          <td class="mono">$${c.liq}</td>
+          <td>
+            <div class="score-wrap">
+              <span class="mono" style="color:${scoreColor(c.score)};font-weight:700;">${c.score}</span>
+              <div class="score-bar"><div class="score-fill" style="width:${c.score}%;background:${scoreColor(c.score)}"></div></div>
+            </div>
+          </td>
+          <td>${riskBadge(c.risk)}</td>
+          <td><button class="btn-sm" onclick="toast(t('toast_trade'))">Trade</button></td>
+        </tr>
+      `).join("");
+    }
+
+    function renderLeaderboard() {
+      document.getElementById("leaderboard").innerHTML = leaders.map((l,i) => `
+        <div class="lb-item">
+          <div class="lb-rank">${i+1}</div>
+          <div class="lb-name">${l.name}</div>
+          <div class="lb-pnl">${l.pnl}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderVotes() {
+      document.getElementById("voteList").innerHTML = votes.map((v,i) => `
+        <div class="vote-item">
+          <div class="vote-left">
+            <span class="icon">${v.icon}</span>
+            <div>
+              <div class="vote-name">${v.name}</div>
+              <div class="vote-count">${v.count} ${lang==="fa"?"رأی":"votes"}</div>
+            </div>
+          </div>
+          <button class="vote-btn" onclick="doVote(${i}, this)">${lang==="fa"?"رأی بده":"Vote"}</button>
+        </div>
+      `).join("");
+    }
+
+    function doVote(i, btn) {
+      if (btn.classList.contains("voted")) return;
+      votes[i].count++;
+      btn.classList.add("voted");
+      btn.textContent = lang==="fa" ? "ثبت شد ✓" : "Voted ✓";
+      renderVotes();
+      // re-mark
+      setTimeout(() => {
+        const btns = document.querySelectorAll("#voteList .vote-btn");
+        if (btns[i]) { btns[i].classList.add("voted"); btns[i].textContent = lang==="fa"?"ثبت شد ✓":"Voted ✓"; }
+      }, 0);
+      toast(t("toast_vote"));
+    }
+
+    function renderFeed() {
+      document.getElementById("alphaFeed").innerHTML = feed.map(f => `
+        <div class="feed-item">
+          <div class="feed-dot ${f.type}"></div>
+          <div>
+            <div class="feed-text">${lang==="fa" ? f.text_fa : f.text_en}</div>
+            <div class="feed-time">${lang==="fa" ? f.time_fa : f.time_en}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    // ===================== Rug Checker =====================
+    document.getElementById("btnCheck").onclick = () => {
+      const ca = document.getElementById("caInput").value.trim();
+      if (!ca || ca.length < 16) {
+        toast(lang==="fa" ? "آدرس معتبر وارد کنید" : "Enter a valid address");
+        return;
+      }
+      const result = document.getElementById("rugResult");
+      result.classList.add("show");
+      const hash = ca.split("").reduce((a,c) => a + c.charCodeAt(0), 0);
+      const score = 28 + (hash % 70);
+      const circle = document.getElementById("scoreCircle");
+      const title = document.getElementById("rugTitle");
+      const msg = document.getElementById("rugMsg");
+      const grid = document.getElementById("riskGrid");
+
+      circle.textContent = "...";
+      title.textContent = lang==="fa" ? "در حال اسکن..." : "Scanning...";
+      msg.textContent = "";
+      grid.innerHTML = "";
+
+      setTimeout(() => {
+        circle.textContent = score;
+        let level, risks;
+        if (score >= 78) {
+          level = "safe";
+          circle.style.color = "var(--green)";
+          circle.style.borderColor = "var(--green)";
+          title.textContent = t("rug_safe");
+          msg.textContent = t("rug_safe_msg");
+          risks = [
+            ["✅", lang==="fa"?"لیکوئیدیتی قفل":"Liquidity locked"],
+            ["✅", lang==="fa"?"Mint سوخته":"Mint renounced"],
+            ["✅", lang==="fa"?"توزیع سالم":"Healthy distribution"],
+            ["⚠️", lang==="fa"?"حجم مشکوک ممکن":"Possible wash volume"],
+          ];
+        } else if (score >= 52) {
+          level = "medium";
+          circle.style.color = "var(--yellow)";
+          circle.style.borderColor = "var(--yellow)";
+          title.textContent = t("rug_medium");
+          msg.textContent = t("rug_med_msg");
+          risks = [
+            ["✅", lang==="fa"?"قرارداد وریفای":"Contract verified"],
+            ["⚠️", lang==="fa"?"لیکوئیدیتی متوسط":"Medium liquidity"],
+            ["⚠️", lang==="fa"?"چند ولت بزرگ":"Large holders"],
+            ["❌", lang==="fa"?"سازنده ناشناس":"Unknown deployer"],
+          ];
+        } else {
+          level = "danger";
+          circle.style.color = "var(--red)";
+          circle.style.borderColor = "var(--red)";
+          title.textContent = t("rug_danger");
+          msg.textContent = t("rug_dang_msg");
+          risks = [
+            ["❌", lang==="fa"?"لیکوئیدیتی کم":"Very low liquidity"],
+            ["❌", lang==="fa"?"احتمال هانی‌پات":"Possible honeypot"],
+            ["❌", lang==="fa"?"توزیع مشکوک":"Suspicious distribution"],
+            ["❌", lang==="fa"?"سابقه بد سازنده":"Bad deployer history"],
+          ];
+        }
+        grid.innerHTML = risks.map(([icon, text]) => `
+          <div class="risk-item"><span>${icon}</span> ${text}</div>
+        `).join("");
+        toast(t("toast_rug"));
+      }, 1200);
+    };
+
+    // ===================== Meme Generator =====================
+    const memeCaptions = {
+      classic: {
+        en: [
+          "When you bought {c} early and everyone else is still sleeping",
+          "Me: just $1 on {c}\nAlso me: entire net worth on {c}",
+          "{c} is going to the moon and you're still thinking",
+        ],
+        fa: [
+          "وقتی {c} رو زود خریدی و بقیه هنوز خوابن",
+          "من: فقط ۱ دلار روی {c}\nهمچنین من: کل زندگیم روی {c}",
+          "{c} داره میره ماه و تو هنوز داری فکر می‌کنی",
+        ]
+      },
+      drake: {
+        en: ["No to serious coins\nYes to {c}", "Complex TA\nJust buy {c} and hold"],
+        fa: ["نه به کوین‌های جدی\nآره به {c}", "تحلیل پیچیده\nفقط {c} بخر و هودل کن"]
+      },
+      brain: {
+        en: ["Buy Bitcoin\nBuy Ethereum\nBuy {c}\nBuy {c} with 20x leverage"],
+        fa: ["خرید بیت‌کوین\nخرید اتریوم\nخرید {c}\nخرید {c} با لوریج ۲۰x"]
+      },
+      stonks: {
+        en: ["{c} STONKS", "Only {c} can do this"],
+        fa: ["{c} استانکس", "فقط {c} می‌تونه این کار رو بکنه"]
+      }
+    };
+
+    document.getElementById("btnMeme").onclick = () => {
+      const coin = (document.getElementById("memeCoin").value.trim() || "PEPE").toUpperCase();
+      const custom = document.getElementById("memeText").value.trim();
+      const style = document.getElementById("memeStyle").value;
+      const emojis = { classic:"🐸", drake:"🚫✅", brain:"🧠", stonks:"📈" };
+      const list = memeCaptions[style][lang];
+      const caption = custom || list[Math.floor(Math.random()*list.length)].replaceAll("{c}", coin);
+
+      document.getElementById("memePreview").innerHTML = `
+        <div class="meme-output">
+          <div class="emoji">${emojis[style]}</div>
+          <div class="title">$${coin}</div>
+          <div class="caption">${caption.replace(/\n/g,"<br>")}</div>
+        </div>
+      `;
+      toast(t("toast_meme"));
+    };
+
+    // ===================== Events =====================
+    document.querySelectorAll(".lang-toggle button").forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll(".lang-toggle button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        lang = btn.dataset.lang;
+        applyLang();
+      };
+    });
+
+    document.querySelectorAll("#filters .filter-chip").forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll("#filters .filter-chip").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentFilter = btn.dataset.filter;
+        renderTable(currentFilter, searchQuery);
+      };
+    });
+
+    document.getElementById("searchInput").oninput = (e) => {
+      searchQuery = e.target.value;
+      renderTable(currentFilter, searchQuery);
+    };
+
+    document.getElementById("btnConnect").onclick = () => toast(t("toast_wallet"));
+    document.getElementById("btnWatchlist").onclick = () => toast(t("toast_watch"));
+    document.getElementById("btnPremium").onclick = () => toast(t("toast_premium"));
+
+    // Smooth nav
+    document.querySelectorAll(".topbar-nav a").forEach(a => {
+      a.onclick = (e) => {
+        e.preventDefault();
+        document.querySelectorAll(".topbar-nav a").forEach(x => x.classList.remove("active"));
+        a.classList.add("active");
+        const t = document.querySelector(a.getAttribute("href"));
+        if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+      };
+    });
+
+    // Live stats tick
+    setInterval(() => {
+      const el = document.getElementById("statCoins");
+      const n = parseInt(el.textContent.replace(",","")) + Math.floor(Math.random()*3-1);
+      el.textContent = n.toLocaleString();
+    }, 4000);
+
+    // Init
+    applyLang();
+  </script>
+</body>
+</html>
