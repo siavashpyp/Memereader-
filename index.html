@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MemeRadar Pro — Live Meme Coin Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#09090b; --bg2:#0f0f12; --card:#141418; --hover:#1c1c22;
+  --border:rgba(255,255,255,.07); --border2:rgba(255,255,255,.12);
+  --text:#fafafa; --text2:#a1a1aa; --muted:#71717a;
+  --green:#22c55e; --green-bg:rgba(34,197,94,.12);
+  --red:#ef4444; --red-bg:rgba(239,68,68,.12);
+  --yellow:#eab308; --purple:#8b5cf6; --purple-bg:rgba(139,92,246,.12);
+  --cyan:#06b6d4; --radius:12px;
+  --font:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:var(--font); background:var(--bg); color:var(--text); min-height:100vh; line-height:1.5; -webkit-font-smoothing:antialiased; }
+button { font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; }
+input, select { font-family:inherit; }
+.mono { font-family:var(--mono); }
+
+.topbar {
+  position:sticky; top:0; z-index:100; height:56px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 1.25rem; gap:1rem;
+  background:rgba(9,9,11,.92); backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.brand { display:flex; align-items:center; gap:.55rem; font-weight:800; font-size:1.1rem; }
+.brand-icon {
+  width:28px; height:28px; border-radius:8px;
+  background:linear-gradient(135deg,#22c55e,#8b5cf6);
+  display:flex; align-items:center; justify-content:center; font-size:.9rem;
+}
+.brand span { color:var(--green); }
+.top-actions { display:flex; align-items:center; gap:.5rem; }
+.btn {
+  display:inline-flex; align-items:center; gap:.35rem;
+  padding:.45rem .9rem; border-radius:8px; font-size:.85rem; font-weight:600; transition:.15s;
+}
+.btn-primary { background:var(--green); color:#000; }
+.btn-primary:hover { filter:brightness(1.08); }
+.btn-secondary { background:var(--card); border:1px solid var(--border); color:var(--text); }
+.btn-secondary:hover { background:var(--hover); }
+.btn-sm { padding:.3rem .65rem; font-size:.78rem; }
+.lang-toggle { display:flex; background:var(--card); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+.lang-toggle button { padding:.35rem .65rem; font-size:.8rem; font-weight:600; color:var(--muted); }
+.lang-toggle button.active { background:var(--purple-bg); color:var(--purple); }
+
+.layout { display:grid; grid-template-columns:1fr 380px; min-height:calc(100vh - 56px); }
+.main-col { padding:1.15rem; overflow-y:auto; max-height:calc(100vh - 56px); }
+.side-col {
+  border-left:1px solid var(--border); background:var(--bg2);
+  padding:1.15rem; overflow-y:auto; max-height:calc(100vh - 56px);
+}
+
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:.6rem; margin-bottom:1rem; }
+.stat {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:.8rem 1rem;
+}
+.stat-label { font-size:.68rem; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+.stat-val { font-size:1.15rem; font-weight:700; font-family:var(--mono); margin-top:.15rem; }
+.stat-val.g { color:var(--green); }
+.stat-val.p { color:var(--purple); }
+
+.toolbar {
+  display:flex; flex-wrap:wrap; gap:.5rem; align-items:center;
+  margin-bottom:.85rem;
+}
+.search {
+  display:flex; align-items:center; gap:.4rem; flex:1; min-width:200px;
+  background:var(--card); border:1px solid var(--border); border-radius:8px;
+  padding:.45rem .75rem;
+}
+.search input {
+  background:none; border:none; outline:none; color:var(--text);
+  font-size:.9rem; width:100%;
+}
+.search input::placeholder { color:var(--muted); }
+.tabs { display:flex; gap:.25rem; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:.2rem; }
+.tab {
+  padding:.4rem .85rem; border-radius:8px; font-size:.82rem; font-weight:600;
+  color:var(--text2); transition:.15s;
+}
+.tab:hover { color:var(--text); }
+.tab.active { background:var(--purple-bg); color:var(--purple); }
+
+.filters {
+  display:flex; flex-wrap:wrap; gap:.45rem; align-items:center;
+  margin-bottom:1rem; padding:.75rem; background:var(--card);
+  border:1px solid var(--border); border-radius:var(--radius);
+}
+.filters label { font-size:.75rem; color:var(--muted); font-weight:600; }
+.filters select, .filters input[type="number"] {
+  background:var(--bg); border:1px solid var(--border); border-radius:7px;
+  padding:.35rem .55rem; color:var(--text); font-size:.8rem; min-width:90px;
+}
+.filters select:focus, .filters input:focus { outline:none; border-color:var(--purple); }
+
+.table-box {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;
+}
+.table-scroll { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; font-size:.85rem; }
+th {
+  text-align:left; padding:.65rem .75rem; color:var(--muted); font-weight:600;
+  font-size:.72rem; text-transform:uppercase; letter-spacing:.03em;
+  border-bottom:1px solid var(--border); background:rgba(0,0,0,.2); white-space:nowrap;
+  user-select:none;
+}
+th.sortable { cursor:pointer; }
+th.sortable:hover { color:var(--text); }
+th .ar { opacity:.4; font-size:.65rem; }
+th.active .ar { opacity:1; color:var(--purple); }
+td { padding:.7rem .75rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+tr { cursor:pointer; transition:background .12s; }
+tr:hover { background:var(--hover); }
+tr.active { background:rgba(139,92,246,.08); }
+tr.watched { box-shadow:inset 3px 0 0 var(--yellow); }
+
+.coin-cell { display:flex; align-items:center; gap:.6rem; }
+.avatar {
+  width:32px; height:32px; border-radius:9px; background:var(--hover);
+  display:flex; align-items:center; justify-content:center; font-size:1rem; overflow:hidden; flex-shrink:0;
+}
+.avatar img { width:100%; height:100%; object-fit:cover; }
+.cname { font-weight:650; font-size:.88rem; }
+.cmeta { font-size:.72rem; color:var(--muted); display:flex; align-items:center; gap:.35rem; flex-wrap:wrap; }
+.badge {
+  display:inline-block; padding:.1rem .45rem; border-radius:4px; font-size:.65rem; font-weight:700;
+}
+.badge-chain { background:rgba(6,182,212,.15); color:var(--cyan); }
+.badge-new { background:var(--green-bg); color:var(--green); }
+.badge-hot { background:rgba(249,115,22,.15); color:#f97316; }
+.badge-safe { background:var(--green-bg); color:var(--green); }
+.badge-warn { background:rgba(234,179,8,.15); color:var(--yellow); }
+.badge-danger { background:var(--red-bg); color:var(--red); }
+
+.chg.up { color:var(--green); }
+.chg.down { color:var(--red); }
+.star-btn { font-size:1rem; opacity:.3; padding:0 2px; transition:.15s; }
+.star-btn.on, .star-btn:hover { opacity:1; color:var(--yellow); }
+.copy-btn {
+  background:var(--hover); border:1px solid var(--border); border-radius:5px;
+  padding:1px 6px; font-size:.65rem; color:var(--text2); margin-left:4px;
+}
+.copy-btn:hover { color:var(--text); }
+
+.chart-header { margin-bottom:.5rem; }
+.chart-header h2 { font-size:1.15rem; font-weight:700; }
+.chart-header .sub { font-size:.8rem; color:var(--muted); margin-top:.2rem; }
+.chart-tabs { display:flex; gap:.3rem; margin-bottom:.6rem; }
+.chart-tab {
+  padding:.35rem .75rem; border-radius:7px; font-size:.78rem; font-weight:600;
+  background:var(--card); border:1px solid var(--border); color:var(--text2);
+}
+.chart-tab.active { background:var(--purple-bg); border-color:rgba(139,92,246,.35); color:var(--purple); }
+.chart-area {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  overflow:hidden; height:380px; margin-bottom:.75rem;
+}
+.chart-area iframe { width:100%; height:100%; border:none; }
+.chart-placeholder {
+  height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  color:var(--muted); gap:.5rem;
+}
+.chart-placeholder .big { font-size:2.5rem; opacity:.4; }
+.detail-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:.5rem; margin-bottom:1rem; }
+.detail-stat {
+  background:var(--card); border:1px solid var(--border); border-radius:10px; padding:.7rem .85rem;
+}
+.detail-stat .l { font-size:.68rem; color:var(--muted); font-weight:600; text-transform:uppercase; }
+.detail-stat .v { font-family:var(--mono); font-weight:700; font-size:.95rem; margin-top:.15rem; }
+
+.side-title { font-size:.9rem; font-weight:700; margin-bottom:.65rem; }
+.card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:.85rem; margin-bottom:1rem;
+}
+.watch-item {
+  display:flex; align-items:center; gap:.6rem; padding:.55rem .4rem;
+  border-radius:8px; cursor:pointer; transition:.12s;
+}
+.watch-item:hover { background:var(--hover); }
+.empty { text-align:center; padding:1.5rem; color:var(--muted); font-size:.85rem; }
+.loading { text-align:center; padding:2rem; color:var(--muted); }
+.status-dot {
+  width:7px; height:7px; border-radius:50%; background:var(--green);
+  display:inline-block; box-shadow:0 0 6px var(--green); margin-right:4px;
+}
+.status-dot.off { background:var(--red); box-shadow:none; }
+
+.toast {
+  position:fixed; bottom:1.25rem; left:50%; transform:translateX(-50%) translateY(80px);
+  background:var(--card); border:1px solid var(--border2); border-radius:10px;
+  padding:.65rem 1.1rem; font-size:.85rem; font-weight:600; z-index:300;
+  transition:transform .25s, opacity .25s; opacity:0; pointer-events:none;
+}
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+
+@media (max-width:1000px) {
+  .layout { grid-template-columns:1fr; }
+  .side-col { border-left:none; border-top:1px solid var(--border); max-height:none; }
+  .main-col { max-height:none; }
+  .stats { grid-template-columns:1fr 1fr; }
+  .detail-stats { grid-template-columns:1fr 1fr; }
+  .chart-area { height:300px; }
+}
+@media (max-width:600px) {
+  .stats { grid-template-columns:1fr 1fr; }
+  .tabs { width:100%; overflow-x:auto; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">📡</div>
+    Meme<span>Radar</span> Pro
+  </div>
+  <div class="top-actions">
+    <span style="font-size:.75rem;color:var(--muted)" id="liveStatus"><span class="status-dot" id="statusDot"></span> Live</span>
+    <div class="lang-toggle">
+      <button class="active" data-lang="en">EN</button>
+      <button data-lang="fa">FA</button>
+    </div>
+    <button class="btn btn-secondary" id="btnRefresh" title="Refresh">↻ Refresh</button>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="main-col">
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Loaded</div><div class="stat-val p" id="sCount">—</div></div>
+      <div class="stat"><div class="stat-label">24h Volume</div><div class="stat-val" id="sVol">—</div></div>
+      <div class="stat"><div class="stat-label">New (&lt;24h)</div><div class="stat-val g" id="sNew">—</div></div>
+      <div class="stat"><div class="stat-label">Watchlist</div><div class="stat-val" id="sWatch">0</div></div>
+    </div>
+
+    <div class="toolbar">
+      <div class="search">
+        <span style="color:var(--muted)">⌕</span>
+        <input type="text" id="searchInput" placeholder="Search name, symbol or contract address…">
+      </div>
+      <button class="btn btn-primary" id="btnSearch">Search</button>
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-tab="trending">Trending</button>
+        <button class="tab" data-tab="new">New</button>
+        <button class="tab" data-tab="watch">Watchlist</button>
+      </div>
+    </div>
+
+    <div class="filters" id="filters">
+      <label>Chain</label>
+      <select id="fChain">
+        <option value="all">All</option>
+        <option value="solana">Solana</option>
+        <option value="base">Base</option>
+        <option value="ethereum">Ethereum</option>
+        <option value="bsc">BSC</option>
+      </select>
+      <label>Min Liq $</label>
+      <input type="number" id="fLiq" placeholder="10000" min="0" step="1000">
+      <label>Min Vol $</label>
+      <input type="number" id="fVol" placeholder="5000" min="0" step="1000">
+      <label>Max Age (h)</label>
+      <input type="number" id="fAge" placeholder="—" min="0">
+      <button class="btn btn-secondary btn-sm" id="btnApplyFilters">Apply</button>
+      <button class="btn btn-secondary btn-sm" id="btnResetFilters">Reset</button>
+    </div>
+
+    <div class="table-box">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>#</th>
+              <th>Coin</th>
+              <th class="sortable" data-sort="price">Price <span class="ar">↕</span></th>
+              <th class="sortable active" data-sort="change">24h <span class="ar">↓</span></th>
+              <th class="sortable" data-sort="volN">Vol <span class="ar">↕</span></th>
+              <th class="sortable" data-sort="liqN">Liq <span class="ar">↕</span></th>
+              <th class="sortable" data-sort="ageH">Age <span class="ar">↕</span></th>
+              <th>Risk</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="9" class="loading">Loading live data…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <aside class="side-col">
+    <div class="chart-header">
+      <h2 id="chartTitle">Select a pair</h2>
+      <div class="sub" id="chartSub">Click any row · Data via DexScreener</div>
+    </div>
+    <div class="chart-tabs" id="chartTabs" style="display:none">
+      <button class="chart-tab active" data-src="dex">DexScreener</button>
+      <button class="chart-tab" data-src="gecko">GeckoTerminal</button>
+    </div>
+    <div class="chart-area" id="chartArea">
+      <div class="chart-placeholder">
+        <div class="big">📈</div>
+        <div>Select a coin to load live chart</div>
+      </div>
+    </div>
+    <div class="detail-stats" id="detailStats" style="display:none">
+      <div class="detail-stat"><div class="l">Price</div><div class="v" id="dPrice">—</div></div>
+      <div class="detail-stat"><div class="l">24h</div><div class="v" id="dChange">—</div></div>
+      <div class="detail-stat"><div class="l">Volume</div><div class="v" id="dVol">—</div></div>
+      <div class="detail-stat"><div class="l">Liquidity</div><div class="v" id="dLiq">—</div></div>
+    </div>
+
+    <div class="side-title">★ Watchlist</div>
+    <div class="card" id="watchBox"><div class="empty">Star coins to track them here</div></div>
+
+    <div class="side-title">Quick links</div>
+    <div class="card" style="font-size:.8rem;color:var(--text2);line-height:1.8">
+      <div>• Click ★ to save a pair</div>
+      <div>• Click CA to copy contract</div>
+      <div>• Filters apply to current tab</div>
+      <div>• Auto-refresh every 2 min</div>
+      <div style="margin-top:.5rem"><a id="openDex" href="https://dexscreener.com" target="_blank" rel="noopener" style="color:var(--purple)">Open on DexScreener ↗</a></div>
+    </div>
+  </aside>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = "https://api.dexscreener.com";
+let lang = "en";
+let coins = [];
+let selected = null;
+let chartSrc = "dex";
+let tab = "trending";
+let sortKey = "change";
+let sortDir = -1;
+let loading = false;
+let watchlist = JSON.parse(localStorage.getItem("mrpro_watch") || "[]");
+let searchTimer = null;
+
+const I = {
+  en: {
+    search_ph: "Search name, symbol or contract address…",
+    loading: "Loading live data…",
+    empty: "No pairs match filters",
+    watch_empty: "Star coins to track them here",
+    updated: "Data updated",
+    err: "Failed to fetch data",
+    copied: "Address copied",
+    select: "Chart loaded"
+  },
+  fa: {
+    search_ph: "جستجوی نام، نماد یا آدرس…",
+    loading: "در حال دریافت داده زنده…",
+    empty: "موردی با این فیلتر پیدا نشد",
+    watch_empty: "با ★ کوین اضافه کن",
+    updated: "داده به‌روز شد",
+    err: "خطا در دریافت داده",
+    copied: "آدرس کپی شد",
+    select: "چارت بارگذاری شد"
+  }
+};
+const t = k => (I[lang] && I[lang][k]) || k;
+
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2200);
+}
+
+function fmtPrice(p) {
+  if (p == null || isNaN(p)) return "—";
+  if (p < 1e-6) return p.toExponential(2);
+  if (p < 0.001) return p.toFixed(8);
+  if (p < 1) return p.toFixed(6);
+  if (p < 100) return p.toFixed(4);
+  return p.toFixed(2);
+}
+function fmtNum(n) {
+  if (n == null || isNaN(n)) return "—";
+  if (n >= 1e9) return (n/1e9).toFixed(2) + "B";
+  if (n >= 1e6) return (n/1e6).toFixed(2) + "M";
+  if (n >= 1e3) return (n/1e3).toFixed(1) + "K";
+  return Math.round(n).toString();
+}
+function fmtAge(h) {
+  if (h == null || h > 9000) return "—";
+  if (h < 1) return "<1h";
+  if (h < 24) return h + "h";
+  if (h < 24 * 30) return Math.floor(h/24) + "d";
+  return Math.floor(h/24/30) + "mo";
+}
+function ageHours(ts) {
+  if (!ts) return 9999;
+  return Math.max(0, Math.floor((Date.now() - ts) / 3600000));
+}
+function riskOf(p) {
+  const liq = p.liquidity?.usd || 0;
+  const age = ageHours(p.pairCreatedAt);
+  if (liq < 5000 || (age < 2 && liq < 20000)) return "danger";
+  if (liq < 30000 || age < 6) return "medium";
+  return "safe";
+}
+function riskBadge(r) {
+  const m = { safe: ["badge-safe","Safe"], medium: ["badge-warn","Med"], danger: ["badge-danger","High"] };
+  const [c,l] = m[r] || m.medium;
+  return `<span class="badge ${c}">${l}</span>`;
+}
+
+function mapPair(p) {
+  const base = p.baseToken || {};
+  const vol = p.volume?.h24 || 0;
+  const liq = p.liquidity?.usd || 0;
+  const change = parseFloat(p.priceChange?.h24) || 0;
+  const price = parseFloat(p.priceUsd) || 0;
+  const ageH = ageHours(p.pairCreatedAt);
+  const chain = p.chainId || "unknown";
+  return {
+    id: `${chain}:${p.pairAddress}`,
+    pairAddress: p.pairAddress,
+    tokenAddress: base.address,
+    name: base.name || base.symbol || "?",
+    symbol: (base.symbol || "?").toUpperCase(),
+    iconUrl: p.info?.imageUrl || null,
+    price, change,
+    volN: vol, liqN: liq,
+    vol: fmtNum(vol), liq: fmtNum(liq),
+    ageH, chain,
+    pair: `${chain}/${p.pairAddress}`,
+    url: p.url || `https://dexscreener.com/${chain}/${p.pairAddress}`,
+    isNew: ageH < 24,
+    isHot: Math.abs(change) > 20 || vol > 500000,
+    risk: riskOf(p),
+    txns: (p.txns?.h24?.buys || 0) + (p.txns?.h24?.sells || 0)
+  };
+}
+
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(r.status + " " + url);
+  return r.json();
+}
+
+async function loadTrending() {
+  const boosts = await fetchJSON(`${API}/token-boosts/top/v1`);
+  if (!Array.isArray(boosts)) return [];
+  const seen = new Set();
+  const list = [];
+  for (const b of boosts) {
+    const key = (b.chainId + ":" + b.tokenAddress).toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    list.push(b);
+    if (list.length >= 20) break;
+  }
+  const out = [];
+  // batch by unique addresses (API accepts comma-separated)
+  for (let i = 0; i < list.length; i += 5) {
+    const chunk = list.slice(i, i + 5);
+    await Promise.all(chunk.map(async (b) => {
+      try {
+        const data = await fetchJSON(`${API}/latest/dex/tokens/${b.tokenAddress}`);
+        let pairs = data.pairs || [];
+        if (b.chainId) pairs = pairs.filter(p => p.chainId === b.chainId);
+        pairs.sort((a, c) => (c.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
+        if (pairs[0]) {
+          const m = mapPair(pairs[0]);
+          if (b.icon) m.iconUrl = b.icon;
+          m.isHot = true;
+          out.push(m);
+        }
+      } catch {}
+    }));
+  }
+  return out;
+}
+
+async function loadNew() {
+  const profiles = await fetchJSON(`${API}/token-profiles/latest/v1`);
+  if (!Array.isArray(profiles)) return [];
+  const out = [];
+  for (const pr of profiles.slice(0, 15)) {
+    try {
+      const data = await fetchJSON(`${API}/latest/dex/tokens/${pr.tokenAddress}`);
+      let pairs = data.pairs || [];
+      if (pr.chainId) pairs = pairs.filter(p => p.chainId === pr.chainId);
+      pairs.sort((a, c) => (c.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
+      if (pairs[0]) {
+        const m = mapPair(pairs[0]);
+        if (pr.icon) m.iconUrl = pr.icon;
+        m.isNew = true;
+        out.push(m);
+      }
+    } catch {}
+  }
+  return out;
+}
+
+async function loadSearch(q) {
+  const data = await fetchJSON(`${API}/latest/dex/search?q=${encodeURIComponent(q)}`);
+  const pairs = data.pairs || [];
+  // prefer higher liquidity, unique by token+chain
+  pairs.sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
+  const seen = new Set();
+  const out = [];
+  for (const p of pairs) {
+    const key = (p.chainId + ":" + (p.baseToken?.address || p.pairAddress)).toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(mapPair(p));
+    if (out.length >= 40) break;
+  }
+  return out;
+}
+
+async function loadWatchPairs() {
+  if (!watchlist.length) return [];
+  // watchlist stores token addresses or pair ids - we store full coin objects' tokenAddress+chain
+  const out = [];
+  for (const w of watchlist.slice(0, 25)) {
+    try {
+      if (w.tokenAddress) {
+        const data = await fetchJSON(`${API}/latest/dex/tokens/${w.tokenAddress}`);
+        let pairs = data.pairs || [];
+        if (w.chain) pairs = pairs.filter(p => p.chainId === w.chain || (w.chain === "eth" && p.chainId === "ethereum"));
+        pairs.sort((a, c) => (c.liquidity?.usd || 0) - (a.liquidity?.usd || 0));
+        if (pairs[0]) out.push(mapPair(pairs[0]));
+      }
+    } catch {}
+  }
+  return out;
+}
+
+function getFilters() {
+  return {
+    chain: document.getElementById("fChain").value,
+    minLiq: parseFloat(document.getElementById("fLiq").value) || 0,
+    minVol: parseFloat(document.getElementById("fVol").value) || 0,
+    maxAge: parseFloat(document.getElementById("fAge").value) || Infinity
+  };
+}
+
+function applyClientFilters(list) {
+  const f = getFilters();
+  return list.filter(c => {
+    if (f.chain !== "all") {
+      const ch = c.chain === "eth" ? "ethereum" : c.chain;
+      if (ch !== f.chain) return false;
+    }
+    if ((c.liqN || 0) < f.minLiq) return false;
+    if ((c.volN || 0) < f.minVol) return false;
+    if ((c.ageH || 9999) > f.maxAge) return false;
+    return true;
+  });
+}
+
+function isWatched(c) {
+  return watchlist.some(w => w.tokenAddress && c.tokenAddress && w.tokenAddress.toLowerCase() === c.tokenAddress.toLowerCase() && w.chain === c.chain);
+}
+function toggleWatch(c) {
+  const idx = watchlist.findIndex(w => w.tokenAddress?.toLowerCase() === c.tokenAddress?.toLowerCase() && w.chain === c.chain);
+  if (idx >= 0) watchlist.splice(idx, 1);
+  else watchlist.push({ tokenAddress: c.tokenAddress, chain: c.chain, symbol: c.symbol, name: c.name });
+  localStorage.setItem("mrpro_watch", JSON.stringify(watchlist));
+  document.getElementById("sWatch").textContent = watchlist.length;
+  renderTable();
+  renderWatchBox();
+  toast(idx >= 0 ? "Removed from watchlist" : "Added to watchlist");
+}
+
+function renderTable() {
+  let list = applyClientFilters([...coins]);
+  list.sort((a, b) => {
+    const av = a[sortKey] ?? 0, bv = b[sortKey] ?? 0;
+    return (av - bv) * sortDir;
+  });
+
+  const tb = document.getElementById("tbody");
+  if (!list.length) {
+    tb.innerHTML = `<tr><td colspan="9" class="empty">${t("empty")}</td></tr>`;
+    return;
+  }
+  tb.innerHTML = list.map((c, i) => {
+    const watched = isWatched(c);
+    const chgCls = c.change >= 0 ? "up" : "down";
+    const chgStr = (c.change >= 0 ? "+" : "") + c.change.toFixed(1) + "%";
+    const av = c.iconUrl
+      ? `<img src="${c.iconUrl}" alt="" onerror="this.parentNode.textContent='🪙'">`
+      : "🪙";
+    return `<tr data-id="${c.id}" class="${selected?.id === c.id ? "active" : ""} ${watched ? "watched" : ""}">
+      <td><button class="star-btn ${watched ? "on" : ""}" data-star="${c.id}">★</button></td>
+      <td style="color:var(--muted);font-size:.78rem">${i + 1}</td>
+      <td>
+        <div class="coin-cell">
+          <div class="avatar">${av}</div>
+          <div>
+            <div class="cname">${c.symbol} <button class="copy-btn" data-copy="${c.tokenAddress || ""}">CA</button></div>
+            <div class="cmeta">
+              <span>${c.name.slice(0, 18)}</span>
+              <span class="badge badge-chain">${c.chain}</span>
+              ${c.isNew ? '<span class="badge badge-new">NEW</span>' : ""}
+              ${c.isHot ? '<span class="badge badge-hot">HOT</span>' : ""}
+            </div>
+          </div>
+        </div>
+      </td>
+      <td class="mono">$${fmtPrice(c.price)}</td>
+      <td class="mono"><span class="chg ${chgCls}">${chgStr}</span></td>
+      <td class="mono">$${c.vol}</td>
+      <td class="mono">$${c.liq}</td>
+      <td class="mono">${fmtAge(c.ageH)}</td>
+      <td>${riskBadge(c.risk)}</td>
+    </tr>`;
+  }).join("");
+
+  tb.querySelectorAll("tr").forEach(tr => {
+    tr.onclick = (e) => {
+      if (e.target.closest("[data-star]") || e.target.closest("[data-copy]")) return;
+      const c = coins.find(x => x.id === tr.dataset.id) || list.find(x => x.id === tr.dataset.id);
+      if (!c) return;
+      selected = c;
+      loadChart(c);
+      renderTable();
+    };
+  });
+  tb.querySelectorAll("[data-star]").forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const c = coins.find(x => x.id === btn.dataset.star) || list.find(x => x.id === btn.dataset.star);
+      if (c) toggleWatch(c);
+    };
+  });
+  tb.querySelectorAll("[data-copy]").forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const addr = btn.dataset.copy;
+      if (!addr) return;
+      navigator.clipboard.writeText(addr).then(() => toast(t("copied"))).catch(() => toast(addr));
+    };
+  });
+}
+
+function renderWatchBox() {
+  const box = document.getElementById("watchBox");
+  document.getElementById("sWatch").textContent = watchlist.length;
+  if (!watchlist.length) {
+    box.innerHTML = `<div class="empty">${t("watch_empty")}</div>`;
+    return;
+  }
+  box.innerHTML = watchlist.map(w => `
+    <div class="watch-item" data-wa="${w.tokenAddress}" data-wc="${w.chain}">
+      <div style="flex:1">
+        <strong>${w.symbol || "?"}</strong>
+        <span style="color:var(--muted);font-size:.75rem"> ${w.name || ""}</span>
+        <div style="font-size:.7rem;color:var(--muted)">${w.chain}</div>
+      </div>
+      <button class="star-btn on" data-rm="${w.tokenAddress}">★</button>
+    </div>
+  `).join("");
+  box.querySelectorAll(".watch-item").forEach(el => {
+    el.onclick = (e) => {
+      if (e.target.closest("[data-rm]")) return;
+      document.getElementById("searchInput").value = el.dataset.wa;
+      doSearch();
+    };
+  });
+  box.querySelectorAll("[data-rm]").forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      watchlist = watchlist.filter(w => w.tokenAddress !== btn.dataset.rm);
+      localStorage.setItem("mrpro_watch", JSON.stringify(watchlist));
+      renderWatchBox();
+      renderTable();
+    };
+  });
+}
+
+function loadChart(c) {
+  document.getElementById("chartTitle").textContent = `${c.symbol} · ${c.name}`;
+  document.getElementById("chartSub").textContent = `${c.chain} · ${c.pairAddress?.slice(0, 8)}…`;
+  document.getElementById("chartTabs").style.display = "flex";
+  document.getElementById("detailStats").style.display = "grid";
+  document.getElementById("dPrice").textContent = "$" + fmtPrice(c.price);
+  const chEl = document.getElementById("dChange");
+  chEl.textContent = (c.change >= 0 ? "+" : "") + c.change.toFixed(2) + "%";
+  chEl.style.color = c.change >= 0 ? "var(--green)" : "var(--red)";
+  document.getElementById("dVol").textContent = "$" + c.vol;
+  document.getElementById("dLiq").textContent = "$" + c.liq;
+  document.getElementById("openDex").href = c.url;
+
+  const area = document.getElementById("chartArea");
+  if (chartSrc === "gecko") {
+    const chain = c.chain === "eth" ? "eth" : c.chain;
+    area.innerHTML = `<iframe src="https://www.geckoterminal.com/${chain}/pools/${c.pairAddress}?embed=1&info=0&swaps=0&light_chart=0&chart_type=price&resolution=15m&bg_color=0f0f12" allow="clipboard-write" allowfullscreen></iframe>`;
+  } else {
+    area.innerHTML = `<iframe src="https://dexscreener.com/${c.pair}?embed=1&theme=dark&trades=0&info=0" allow="clipboard-write" allowfullscreen></iframe>`;
+  }
+}
+
+function updateStats() {
+  document.getElementById("sCount").textContent = coins.length;
+  const vol = coins.reduce((s, c) => s + (c.volN || 0), 0);
+  document.getElementById("sVol").textContent = "$" + fmtNum(vol);
+  document.getElementById("sNew").textContent = coins.filter(c => c.isNew).length;
+}
+
+async function refresh(silent) {
+  if (loading) return;
+  loading = true;
+  document.getElementById("statusDot").classList.remove("off");
+  if (!silent) {
+    document.getElementById("tbody").innerHTML = `<tr><td colspan="9" class="loading">${t("loading")}</td></tr>`;
+  }
+  try {
+    let data = [];
+    if (tab === "trending") data = await loadTrending();
+    else if (tab === "new") data = await loadNew();
+    else if (tab === "watch") data = await loadWatchPairs();
+    coins = data;
+    updateStats();
+    renderTable();
+    if (selected) {
+      const upd = coins.find(c => c.id === selected.id);
+      if (upd) { selected = upd; loadChart(upd); }
+    }
+    if (!silent) toast(t("updated"));
+  } catch (e) {
+    console.error(e);
+    document.getElementById("statusDot").classList.add("off");
+    if (!silent) {
+      toast(t("err"));
+      document.getElementById("tbody").innerHTML = `<tr><td colspan="9" class="empty">${t("err")} — try Refresh</td></tr>`;
+    }
+  } finally {
+    loading = false;
+  }
+}
+
+async function doSearch() {
+  const q = document.getElementById("searchInput").value.trim();
+  if (!q) { refresh(false); return; }
+  loading = true;
+  document.getElementById("tbody").innerHTML = `<tr><td colspan="9" class="loading">${t("loading")}</td></tr>`;
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  try {
+    coins = await loadSearch(q);
+    tab = "search";
+    updateStats();
+    renderTable();
+    toast(t("updated"));
+  } catch (e) {
+    console.error(e);
+    toast(t("err"));
+  } finally {
+    loading = false;
+  }
+}
+
+// Events
+document.getElementById("btnSearch").onclick = doSearch;
+document.getElementById("searchInput").onkeydown = e => { if (e.key === "Enter") doSearch(); };
+document.getElementById("btnRefresh").onclick = () => {
+  if (tab === "search" && document.getElementById("searchInput").value.trim()) doSearch();
+  else refresh(false);
+};
+document.getElementById("btnApplyFilters").onclick = () => renderTable();
+document.getElementById("btnResetFilters").onclick = () => {
+  document.getElementById("fChain").value = "all";
+  document.getElementById("fLiq").value = "";
+  document.getElementById("fVol").value = "";
+  document.getElementById("fAge").value = "";
+  renderTable();
+};
+
+document.querySelectorAll("#tabs .tab").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll("#tabs .tab").forEach(x => x.classList.remove("active"));
+    btn.classList.add("active");
+    tab = btn.dataset.tab;
+    document.getElementById("searchInput").value = "";
+    refresh(false);
+  };
+});
+
+document.querySelectorAll("th.sortable").forEach(th => {
+  th.onclick = () => {
+    const key = th.dataset.sort;
+    if (sortKey === key) sortDir *= -1;
+    else { sortKey = key; sortDir = -1; }
+    document.querySelectorAll("th.sortable").forEach(x => {
+      x.classList.remove("active");
+      x.querySelector(".ar").textContent = "↕";
+    });
+    th.classList.add("active");
+    th.querySelector(".ar").textContent = sortDir < 0 ? "↓" : "↑";
+    renderTable();
+  };
+});
+
+document.querySelectorAll("#chartTabs .chart-tab").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll("#chartTabs .chart-tab").forEach(x => x.classList.remove("active"));
+    btn.classList.add("active");
+    chartSrc = btn.dataset.src;
+    if (selected) loadChart(selected);
+  };
+});
+
+document.querySelectorAll(".lang-toggle button").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".lang-toggle button").forEach(x => x.classList.remove("active"));
+    btn.classList.add("active");
+    lang = btn.dataset.lang;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "fa" ? "rtl" : "ltr";
+    document.getElementById("searchInput").placeholder = t("search_ph");
+    renderTable();
+    renderWatchBox();
+  };
+});
+
+renderWatchBox();
+refresh(false);
+setInterval(() => {
+  if (tab === "search") return;
+  refresh(true);
+}, 120000);
+</script>
+</body>
+</html>
